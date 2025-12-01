@@ -22,7 +22,7 @@ class LoanTakenResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Loans I Took';
+    protected static ?string $recordTitleAttribute = 'purpose';
     protected static ?string $label = 'Loans I Took';
 
     public static function form(Schema $schema): Schema
