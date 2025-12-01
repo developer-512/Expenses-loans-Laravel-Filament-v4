@@ -25,6 +25,7 @@ class LoanGivenInfolist
                         TextEntry::make('repayment_date')->label('Repayment Date:')
                             ->date()
                             ->placeholder('Not Paid Yet'),
+                        TextEntry::make('amount_paid')->label('Amount Received:')->money('pkr',true),
 //                        TextEntry::make('updated_at')
 //                            ->dateTime()
 //                            ->placeholder('-'),

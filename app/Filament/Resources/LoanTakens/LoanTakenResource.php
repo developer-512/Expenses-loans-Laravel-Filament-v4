@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class LoanTakenResource extends Resource
 {
@@ -37,7 +38,7 @@ class LoanTakenResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return LoanTakensTable::configure($table);
+        return LoanTakensTable::configure($table)->defaultSort('id', 'desc');
     }
 
     public static function getRelations(): array
@@ -61,5 +62,17 @@ class LoanTakenResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('user_id', auth()->id());
+    }
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['lender.name', 'amount', 'purpose', 'date'];
+    }
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Lender' => $record->lender->name,
+            'Amount' => $record->amount,
+            'Date' => $record->date,
+        ];
     }
 }

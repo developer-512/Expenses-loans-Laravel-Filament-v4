@@ -11,10 +11,12 @@ use App\Filament\Resources\Expenses\Schemas\ExpenseInfolist;
 use App\Filament\Resources\Expenses\Tables\ExpensesTable;
 use App\Models\Expense;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ExpenseResource extends Resource
 {
@@ -36,7 +38,7 @@ class ExpenseResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ExpensesTable::configure($table);
+        return ExpensesTable::configure($table)->defaultSort('id', 'desc');
     }
 
     public static function getRelations(): array
@@ -59,5 +61,24 @@ class ExpenseResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('user_id', auth()->id());
+    }
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'amount', 'source', 'description','date'];
+    }
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Title' => $record->title,
+            'Amount' => $record->amount,
+            'Date' => $record->date,
+        ];
+    }
+    public static function getGlobalSearchResultActions(Model $record): array
+    {
+        return [
+            Action::make('edit')
+                ->url(static::getUrl('edit', ['record' => $record])),
+        ];
     }
 }

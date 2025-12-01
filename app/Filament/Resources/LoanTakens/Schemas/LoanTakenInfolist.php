@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LoanTakens\Schemas;
 
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -25,6 +26,7 @@ class LoanTakenInfolist
                         TextEntry::make('repayment_date')->label('Repayment Date:')
                             ->date()
                             ->placeholder('Not Paid Yet'),
+                        TextEntry::make('amount_paid')->label('Amount Paid:')->money('pkr',true),
 //                        TextEntry::make('updated_at')
 //                            ->dateTime()
 //                            ->placeholder('-'),

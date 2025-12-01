@@ -30,6 +30,7 @@ class LoanTakenForm
                         ->required()
                         ->numeric()
                         ->default(0),
+
                     DatePicker::make('date')
                         ->label('Loan Issue Date:')
                         ->displayFormat('d/m/Y')
@@ -57,9 +58,11 @@ class LoanTakenForm
                         ->label('Loan Repayment Date:')
                         ->displayFormat('d/m/Y')
                         ->format('Y-m-d')
-                        ->required()
-                        ->native(false)
-                        ->default(now()),
+                        ->native(false),
+                    TextInput::make('amount_paid')
+                        ->label('Loan Amount Paid:')
+                        ->numeric()
+                        ->default(0),
                     ])
 
             ]);

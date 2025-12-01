@@ -21,6 +21,7 @@ class LoanTaken extends Model
         'amount',
         'date',
         'repayment_date',
+        'amount_paid',
         'paid',
         'purpose',
     ];
@@ -30,6 +31,7 @@ class LoanTaken extends Model
      */
     protected $casts = [
         'amount' => 'decimal:2',
+        'amount_paid' => 'decimal:2',
         'date'   => 'date',
         'repayment_date'   => 'date',
         'paid'   => 'boolean',

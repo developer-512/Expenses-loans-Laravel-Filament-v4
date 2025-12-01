@@ -22,6 +22,7 @@ class LoanGiven extends Model
         'amount',
         'date',
         'repayment_date',
+        'amount_paid',
         'paid',
         'purpose',
     ];
@@ -31,6 +32,7 @@ class LoanGiven extends Model
      */
     protected $casts = [
         'amount' => 'decimal:2',
+        'amount_paid' => 'decimal:2',
         'date'   => 'date',
         'repayment_date'   => 'date',
         'paid'   => 'boolean',
@@ -66,6 +68,12 @@ class LoanGiven extends Model
             if (! $loan->paid) {
                 $loan->repayment_date = null;
             }
+        });
+    }
+    protected static function booted()
+    {
+        static::saving(function ($loan) {
+            $loan->paid = $loan->amount_paid >= $loan->amount;
         });
     }
 
