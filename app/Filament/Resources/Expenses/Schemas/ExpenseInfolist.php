@@ -24,7 +24,7 @@ class ExpenseInfolist
 
                 Section::make('Description')
                     ->schema([
-                        TextEntry::make('description')->label('Details')
+                        TextEntry::make('description')->label('Details:')
                             ->html(), // allow rich text
                          ImageEntry::make('receipt')->label('Receipt:')->imageWidth(250)->imageHeight('auto'),
                     ])->columns(2)->columnSpanFull(),
