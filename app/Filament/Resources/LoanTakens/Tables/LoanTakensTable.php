@@ -3,21 +3,26 @@
 namespace App\Filament\Resources\LoanTakens\Tables;
 
 use App\Models\User;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class LoanTakensTable
 {
@@ -28,6 +33,8 @@ class LoanTakensTable
                 Split::make([
                 TextColumn::make('lender.name')
                     ->searchable(),
+                    IconColumn::make('paid')->label('Is Paid?')
+                        ->boolean(),
                 Stack::make([
                 TextColumn::make('amount')
                     ->numeric()->money('pkr',true)
@@ -37,8 +44,23 @@ class LoanTakensTable
                     ->sortable(),
                 ]),
                 Stack::make([
-                        IconColumn::make('paid')->label('Is Paid?')
-                            ->boolean(),
+
+                    ToggleColumn::make('paid')
+                        ->label('Is Paid?')
+                        ->onColor('success')
+                        ->offColor('danger')
+
+                        ->updateStateUsing(function ($record, $state) {
+                            // If you need custom logic
+                            $record->paid = $state;
+                            if($state){
+                                $record->amount_paid = $record->amount;
+                                $record->repayment_date = now()->toDateString();
+                            }else{
+                                $record->amount_paid = 0;
+                            }
+                            $record->save();
+                        }),
                         TextColumn::make('repayment_date')
                             ->date()
                             ->sortable()->placeholder('Not Paid Yet'),
@@ -53,7 +75,7 @@ class LoanTakensTable
             ])->contentGrid([
                 'md' => 1,
                 'xl' => 2,
-            ])
+            ])->recordUrl(null)
             ->filters([
                 SelectFilter::make('lender_id')
                     ->label('Lender')
@@ -85,13 +107,25 @@ class LoanTakensTable
                     })
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()->button(),
+                EditAction::make()->button(),
+                DeleteAction::make()->button(),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                DeleteBulkAction::make(),
+                BulkAction::make('mark_paid')
+                    ->label('Mark as Paid')
+                    ->icon(Heroicon::CheckCircle)
+                    ->requiresConfirmation()
+                    ->color('success')
+                    ->action(function (Collection $records) {
+                        foreach ($records as $record) {
+                            $record->paid = true;
+                            $record->amount_paid = $record->amount;
+                            $record->repayment_date = now()->toDateString();
+                            $record->save();
+                        }
+                    }),
             ]);
     }
 }

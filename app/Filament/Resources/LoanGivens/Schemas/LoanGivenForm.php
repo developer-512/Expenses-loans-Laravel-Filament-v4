@@ -63,7 +63,7 @@ class LoanGivenForm
                     TextInput::make('amount_paid')
                         ->label('Loan Amount Paid:')
                         ->numeric()
-                        ->default(''),
+                        ->default(0),
                     ])
 
             ]);

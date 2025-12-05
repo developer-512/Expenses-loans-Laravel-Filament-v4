@@ -62,7 +62,9 @@ class LoanTaken extends Model
             if ($loan->paid && is_null($loan->repayment_date)) {
                 $loan->repayment_date = now()->toDateString();
             }
-
+            if($loan->paid && $loan->amount_paid < $loan->amount){
+                $loan->amount_paid=$loan->amount;
+            }
             // If paid is false → reset to null
             if (! $loan->paid) {
                 $loan->repayment_date = null;

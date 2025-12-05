@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Expenses\Tables;
 
 use App\Models\Expense;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -73,8 +74,9 @@ class ExpensesTable
                     })
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()->button(),
+                EditAction::make()->button(),
+                DeleteAction::make()->button(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

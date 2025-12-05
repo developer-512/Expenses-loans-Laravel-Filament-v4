@@ -3,21 +3,26 @@
 namespace App\Filament\Resources\LoanGivens\Tables;
 
 use App\Models\User;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class LoanGivensTable
 {
@@ -29,6 +34,8 @@ class LoanGivensTable
                 Split::make([
                         TextColumn::make('borrower.name')
                             ->searchable(),
+                    IconColumn::make('paid')->label('Is Paid?')
+                        ->boolean(),
                     Stack::make([
                         TextColumn::make('amount')
                             ->numeric()
@@ -39,54 +46,38 @@ class LoanGivensTable
                             ->sortable(),
                         ]),
                     Stack::make([
-                        IconColumn::make('paid')->label('Is Paid?')
-                            ->boolean(),
+
+                        ToggleColumn::make('paid')
+                            ->label('Is Received?')
+                            ->onColor('success')
+                            ->offColor('danger')
+
+                            ->updateStateUsing(function ($record, $state) {
+                                // If you need custom logic
+                                $record->paid = $state;
+                                if($state){
+                                    $record->amount_paid = $record->amount;
+                                    $record->repayment_date = now()->toDateString();
+                                }else{
+                                    $record->amount_paid = 0;
+                                }
+                                $record->save();
+                            }),
                         TextColumn::make('repayment_date')
                             ->date()
-                            ->sortable()->placeholder('Not Paid Yet'),
+                            ->sortable()->placeholder('Not Received Yet'),
                         ])
                     ])->columnSpanFull()->from('md'),
-
-                /*Split::make([
-//                TextColumn::make('user.name')
-//                    ->searchable(),
-                TextColumn::make('borrower.name')
-                    ->searchable(),
-//                TextColumn::make('receipt')
-//                    ->searchable(),
-                TextColumn::make('amount')
-                        ->numeric()
-                        ->money('pkr', true)
-                        ->sortable(),
-                    TextColumn::make('date')
-                        ->date()
-                        ->sortable(),
-                   Stack::make([
-                        IconColumn::make('paid')->label('Is Paid?')
-                            ->boolean(),
-                       TextColumn::make('repayment_date')
-                           ->date()
-                           ->sortable(),
-                    ]),
-                ])->from('md'),*/
                 Panel::make([
                     Stack::make([
                         TextColumn::make('purpose')
                             ->searchable()->columnSpanFull(),
                     ])
                 ])->collapsible(false)
-//                TextColumn::make('created_at')
-//                    ->dateTime()
-//                    ->sortable()
-//                    ->toggleable(isToggledHiddenByDefault: true),
-//                TextColumn::make('updated_at')
-//                    ->dateTime()
-//                    ->sortable()
-//                    ->toggleable(isToggledHiddenByDefault: true),
             ])->contentGrid([
                 'md' => 1,
                 'xl' => 2,
-            ])
+            ])->recordUrl(null)
             ->filters([
                 SelectFilter::make('borrower_id')
                     ->label('Borrower')
@@ -96,9 +87,9 @@ class LoanGivensTable
                     )
                     ->searchable(),
                 TernaryFilter::make('paid')
-                    ->label('Paid Status')
-                    ->trueLabel('Paid')
-                    ->falseLabel('Unpaid')
+                    ->label('Received Status')
+                    ->trueLabel('Received')
+                    ->falseLabel('Not Received')
                     ->placeholder('All'),
                 Filter::make('date')
                     ->schema([
@@ -118,13 +109,25 @@ class LoanGivensTable
                     })
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()->button(),
+                EditAction::make()->button(),
+                DeleteAction::make()->button(),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                DeleteBulkAction::make(),
+                BulkAction::make('mark_paid')
+                    ->label('Mark as Received')
+                    ->icon(Heroicon::CheckCircle)
+                    ->requiresConfirmation()
+                    ->color('success')
+                    ->action(function (Collection $records) {
+                        foreach ($records as $record) {
+                            $record->paid = true;
+                            $record->amount_paid = $record->amount;
+                            $record->repayment_date = now()->toDateString();
+                            $record->save();
+                        }
+                    }),
             ]);
     }
 }
