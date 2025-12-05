@@ -9,7 +9,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class LoanTakenOverview extends StatsOverviewWidget
 {
     public string $Dashboard;
-  
+
 
     protected function getStats(): array
     {
@@ -24,7 +24,7 @@ class LoanTakenOverview extends StatsOverviewWidget
         return [
             Stat::make($title . 'Total', $totalAmount),
 
-            Stat::make($title . 'Pending Total', $totalPending),
+            Stat::make($title . 'Pending Total', $totalPending?:0),
 
             Stat::make($title . 'Paid Total', $totalReceived),
         ];

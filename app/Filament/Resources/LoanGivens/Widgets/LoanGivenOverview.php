@@ -23,7 +23,7 @@ class LoanGivenOverview extends StatsOverviewWidget
         return [
             Stat::make($title . 'Total', $totalAmount),
 
-            Stat::make($title . 'Pending Total', $totalPending),
+            Stat::make($title . 'Pending Total', $totalPending?:0),
 
             Stat::make($title . 'Received Total', $totalReceived),
         ];
